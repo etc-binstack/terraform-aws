@@ -1,0 +1,90 @@
+# =============================================================================
+# Terraform
+# =============================================================================
+.terraform/
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
+*.tfplan
+tfplan
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraform.tfstate.lock.info
+.terraformrc
+terraform.rc
+
+# tfvars may contain secrets (API keys, account IDs, passwords)
+*.tfvars
+*.tfvars.json
+# Allow example tfvars — safe to commit
+!*.tfvars.example
+!*.tfvars.sample
+
+# =============================================================================
+# Lambda — Generated Build Artifacts
+# =============================================================================
+# SES zip is generated at plan time by data.archive_file — do NOT commit
+templates/lambda/ses/*.zip
+
+# Python cache generated during local testing or Lambda invocation
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+**/*.pyd
+
+# =============================================================================
+# Secrets and Sensitive Files
+# =============================================================================
+.env
+.env.*
+*.env
+*.secret
+*.secrets
+*.key
+*.pem
+*.p12
+*.pfx
+secrets.json
+secrets.yaml
+secrets.yml
+credentials
+credentials.json
+
+# =============================================================================
+# OS and IDE
+# =============================================================================
+# macOS
+.DS_Store
+.AppleDouble
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# JetBrains
+.idea/
+*.iml
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# =============================================================================
+# Logs and Temp
+# =============================================================================
+*.log
+*.tmp
+*.temp
+*.swp
+*.bak
+
+# =============================================================================
+# NOTE — Pre-built Lambda zips committed intentionally (required by lambda.tf)
+# templates/lambda/generic_mailer/alerts_generic.zip
+# templates/lambda/postmark/postmark_cw_alerts.zip
+# templates/lambda/sendgrid/sendgrid_cw_alerts.zip
+# =============================================================================

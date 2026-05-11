@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CloudWatch Alarm Notification</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f4f6f9;
+      color: #333;
+    }
+    .container {
+      max-width: 700px;
+      margin: 20px auto;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+    .header {
+      background: {{ header_bg }};
+      color: white;
+      padding: 30px 20px;
+      text-align: center;
+    }
+    .header h1 {
+      margin: 0;
+      font-size: 28px;
+      font-weight: 700;
+    }
+    .icon {
+      font-size: 40px;
+      display: block;
+      margin-bottom: 10px;
+    }
+    .badge {
+      background: {{ color }};
+      color: white;
+      padding: 5px 12px;
+      border-radius: 20px;
+      display: inline-block;
+      font-size: 12px;
+      font-weight: bold;
+      text-transform: uppercase;
+      margin: 10px 0;
+    }
+    .content {
+      padding: 20px 25px;
+      font-size: 14px;
+    }
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    .table th, .table td {
+      padding: 10px;
+      text-align: left;
+      border-bottom: 1px solid #e0e0e0;
+      vertical-align: top;
+    }
+    .table th {
+      background: #f0f2f5;
+      text-transform: uppercase;
+      font-size: 12px;
+      font-weight: 600;
+      color: #555;
+      width: 40%;
+    }
+    .reason {
+      margin-top: 15px;
+      background: #fff8e1;
+      border-left: 5px solid #fbc02d;
+      padding: 10px 15px;
+      font-style: italic;
+      border-radius: 4px;
+    }
+    .footer {
+      background: #f1f3f5;
+      text-align: center;
+      font-size: 12px;
+      color: #888;
+      padding: 15px;
+      border-top: 1px solid #dee2e6;
+    }
+    .footer a {
+      color: #007bff;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1><span class="icon">{{ header_icon }}</span> CloudWatch Alarm Triggered</h1>
+    </div>
+    <div class="content">
+      <div class="badge">{{ symbol }} {{ impact }}</div>
+      <table class="table">
+        <tr><th>State Change</th><td><strong>{{ state_change }}</strong></td></tr>
+        <tr><th>Alarm Name</th><td>{{ alarm }}</td></tr>
+        <tr><th>Account & Region</th><td>{{ account }} ({{ region }})</td></tr>
+        <tr><th>Resource</th><td>{{ resource }}</td></tr>
+        <tr><th>Date & Time</th><td>{{ datetime }}</td></tr>
+        <tr><th>Comparison</th><td>{{ comparisonoperator }} <strong>{{ threshold }}</strong></td></tr>
+        <tr><th>Metric</th><td>Namespace: <strong>{{ namespace }}</strong><br>Name: <strong>{{ metricname }}</strong></td></tr>
+      </table>
+      <div class="reason"><strong>Reason:</strong> {{ reason }}</div>
+      {% if description and description != 'No description provided.' %}
+        <div class="description" style="margin-top: 15px; background: #f9f9f9; padding: 10px; border-left: 4px solid #ccc;">
+          <strong>Description:</strong> {{ description }}
+        </div>
+      {% endif %}
+      <p style="margin-top: 20px; color: #555;">
+        📋 <strong>Next Steps:</strong> Please review the AWS CloudWatch console for metrics, logs, and corrective actions.
+      </p>
+    </div>
+    <div class="footer">
+      <p>© {{ current_year }} AWS CloudWatch Monitoring System</p>
+      <p>This is an automated notification. Please do not reply.</p>
+    </div>
+  </div>
+</body>
+</html>
