@@ -41,7 +41,7 @@ locals {
 
   ## Default capacity provider strategy for the cluster
   ## Services can override this with their own capacity_provider_strategy
-  default_capacity_provider_strategy = compact([
+  default_capacity_provider_strategy = [for s in [
     local.fargate.enabled ? {
       capacity_provider = "FARGATE"
       base              = local.fargate.default_base
@@ -57,7 +57,7 @@ locals {
       base              = local.ec2.default_base
       weight            = local.ec2.default_weight
     } : null
-  ])
+  ] : s if s != null]
 
   ## EC2: resolve AMI — use provided or auto-resolve ECS-optimized AL2
   ec2_ami_id = local.ec2.enabled ? (
