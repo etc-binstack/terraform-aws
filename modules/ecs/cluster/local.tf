@@ -52,12 +52,12 @@ locals {
       base              = local.fargate_spot.default_base
       weight            = local.fargate_spot.default_weight
     } : null,
-    local.ec2.enabled ? {
+    length(aws_ecs_capacity_provider.ec2) > 0 ? {
       capacity_provider = aws_ecs_capacity_provider.ec2[0].name
       base              = local.ec2.default_base
       weight            = local.ec2.default_weight
     } : null
-  ] : s if s != null]
+  ] : s if s != null && (try(s.weight, 0) > 0 || try(s.base, 0) > 0)]
 
   ## EC2: resolve AMI — use provided or auto-resolve ECS-optimized AL2
   ec2_ami_id = local.ec2.enabled ? (

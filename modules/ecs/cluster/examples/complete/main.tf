@@ -46,17 +46,21 @@ module "ecs_cluster" {
 
     ## EC2 — bridge mode, GPU, high-density, or awsvpc on EC2
     ec2 = {
-      enabled                 = true
-      instance_type           = "m5.large"
-      ami_id                  = null         # auto-resolve ECS-optimized AMI
-      min_size                = 1
-      max_size                = 10
-      desired_capacity        = 2
-      vpc_zone_identifier     = data.aws_subnets.private.ids
-      managed_scaling_enabled = true
-      managed_scaling_target  = 80
-      default_base            = 0
-      default_weight          = 0   # services opt-in to EC2 explicitly
+      enabled                        = true
+      instance_type                  = "m5.large"
+      ami_id                         = null         # auto-resolve ECS-optimized AMI
+      min_size                       = 1
+      max_size                       = 10
+      desired_capacity               = 2            # initial only — ECS owns this after first apply
+      vpc_zone_identifier            = data.aws_subnets.private.ids
+      managed_scaling_enabled        = true
+      managed_scaling_target         = 80           # 20% headroom for fast task placement
+      managed_draining_enabled       = true         # drain tasks before instance termination
+      instance_warmup_period         = 300          # 5m before new instance capacity is counted
+      minimum_scaling_step_size      = 1
+      maximum_scaling_step_size      = 10
+      default_base                   = 0
+      default_weight                 = 0            # services opt-in to EC2 explicitly
     }
   }
 

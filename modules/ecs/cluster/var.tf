@@ -154,8 +154,12 @@ variable "capacity_providers" {
       vpc_zone_identifier  = optional(list(string), [])   # private subnet IDs
 
       ## Managed scaling — ECS adjusts EC2 count based on task placement demand
-      managed_scaling_enabled   = optional(bool, true)
-      managed_scaling_target    = optional(number, 80)    # % of EC2 capacity to use before scaling
+      managed_scaling_enabled        = optional(bool, true)
+      managed_scaling_target         = optional(number, 80)   # % of EC2 capacity to use before scaling
+      managed_draining_enabled       = optional(bool, true)   # drain tasks before instance termination
+      instance_warmup_period         = optional(number, 300)  # seconds before new instance capacity is counted
+      minimum_scaling_step_size      = optional(number, 1)
+      maximum_scaling_step_size      = optional(number, 10)
 
       ## Capacity provider cluster defaults
       default_base   = optional(number, 0)
