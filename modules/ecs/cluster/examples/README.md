@@ -212,17 +212,21 @@ module "ecs_cluster" {
     fargate_spot = { enabled = false }
 
     ec2 = {
-      enabled                 = true
-      instance_type           = "m5.large"
-      ami_id                  = null          # auto-resolve ECS-optimized AMI
-      min_size                = 1
-      max_size                = 10
-      desired_capacity        = 2
-      vpc_zone_identifier     = module.vpc.private_subnet_ids
-      managed_scaling_enabled = true
-      managed_scaling_target  = 80
-      default_base            = 0
-      default_weight          = 1
+      enabled                        = true
+      instance_type                  = "m5.large"
+      ami_id                         = null          # auto-resolve ECS-optimized AMI
+      min_size                       = 1
+      max_size                       = 10
+      desired_capacity               = 2             # initial only — ECS owns this after first apply
+      vpc_zone_identifier            = module.vpc.private_subnet_ids
+      managed_scaling_enabled        = true
+      managed_scaling_target         = 80            # 20% headroom kept warm
+      managed_draining_enabled       = true          # drain tasks before instance termination
+      instance_warmup_period         = 300           # 5m before new instance capacity is counted
+      minimum_scaling_step_size      = 1
+      maximum_scaling_step_size      = 10
+      default_base                   = 0
+      default_weight                 = 1
     }
   }
 }
@@ -232,6 +236,8 @@ module "ecs_cluster" {
 
 - **Security group:** EC2 instances need a SG allowing ECS agent traffic. Manage outside this module and attach via `extra_user_data` or launch template SG reference.
 - **Pin AMI in prod:** `ami_id = data.aws_ssm_parameter.ecs_ami.value` — pin to a tested AMI version.
+- **`desired_capacity` is advisory:** ECS managed scaling owns it after first apply. Changing it in Terraform has no effect.
+- **Safe disable:** Set `managed_scaling_enabled = false` first (apply), then set `enabled = false` (apply). Never jump straight to `enabled = false` with running instances.
 - **Related:** `service-awsvpc` module — set `capacity_provider_strategy` to `ec2_capacity_provider_name` output.
 
 ---
@@ -283,14 +289,18 @@ module "ecs_cluster" {
     fargate      = { enabled = true  }   # awsvpc Fargate services still work
     fargate_spot = { enabled = false }
     ec2 = {
-      enabled              = true
-      instance_type        = "c5.xlarge"   # CPU-optimised for many small tasks
-      min_size             = 2
-      max_size             = 20
-      desired_capacity     = 2
-      vpc_zone_identifier  = module.vpc.private_subnet_ids
-      managed_scaling_enabled = true
-      managed_scaling_target  = 80
+      enabled                        = true
+      instance_type                  = "c5.xlarge"   # CPU-optimised for many small tasks
+      min_size                       = 2
+      max_size                       = 20
+      desired_capacity               = 2
+      vpc_zone_identifier            = module.vpc.private_subnet_ids
+      managed_scaling_enabled        = true
+      managed_scaling_target         = 80
+      managed_draining_enabled       = true
+      instance_warmup_period         = 300
+      minimum_scaling_step_size      = 1
+      maximum_scaling_step_size      = 10
     }
   }
 }
@@ -362,16 +372,20 @@ module "ecs_cluster" {
       default_weight = 3
     }
     ec2 = {
-      enabled                 = true
-      instance_type           = "m5.large"
-      min_size                = 1
-      max_size                = 10
-      desired_capacity        = 2
-      vpc_zone_identifier     = module.vpc.private_subnet_ids
-      managed_scaling_enabled = true
-      managed_scaling_target  = 80
-      default_base            = 0
-      default_weight          = 0   # services opt-in explicitly
+      enabled                        = true
+      instance_type                  = "m5.large"
+      min_size                       = 1
+      max_size                       = 10
+      desired_capacity               = 2
+      vpc_zone_identifier            = module.vpc.private_subnet_ids
+      managed_scaling_enabled        = true
+      managed_scaling_target         = 80
+      managed_draining_enabled       = true
+      instance_warmup_period         = 300
+      minimum_scaling_step_size      = 1
+      maximum_scaling_step_size      = 10
+      default_base                   = 0
+      default_weight                 = 0   # services opt-in explicitly
     }
   }
 

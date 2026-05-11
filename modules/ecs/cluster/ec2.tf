@@ -117,8 +117,9 @@ resource "aws_autoscaling_group" "ec2" {
     version = "$Latest"
   }
 
-  ## Required for ECS managed scaling to work
-  protect_from_scale_in = true
+  ## Required for ECS managed scaling — ECS sets/removes instance-level scale-in protection
+  protect_from_scale_in = local.ec2.managed_scaling_enabled
+  force_delete          = true   # allow clean destroy even with scale-in protected instances
 
   tag {
     key                 = "Name"
@@ -142,7 +143,7 @@ resource "aws_autoscaling_group" "ec2" {
   }
 
   lifecycle {
-    ignore_changes = [desired_capacity]   # ECS managed scaling controls desired_capacity
+    ignore_changes = [desired_capacity]   # ECS managed scaling owns desired_capacity
   }
 }
 
@@ -153,13 +154,15 @@ resource "aws_ecs_capacity_provider" "ec2" {
 
   auto_scaling_group_provider {
     auto_scaling_group_arn         = aws_autoscaling_group.ec2[0].arn
-    managed_termination_protection = "ENABLED"
+    managed_termination_protection = local.ec2.managed_scaling_enabled ? "ENABLED" : "DISABLED"
+    managed_draining               = local.ec2.managed_draining_enabled ? "ENABLED" : "DISABLED"
 
     managed_scaling {
       status                    = local.ec2.managed_scaling_enabled ? "ENABLED" : "DISABLED"
       target_capacity           = local.ec2.managed_scaling_target
-      minimum_scaling_step_size = 1
-      maximum_scaling_step_size = 100
+      minimum_scaling_step_size = local.ec2.minimum_scaling_step_size
+      maximum_scaling_step_size = local.ec2.maximum_scaling_step_size
+      instance_warmup_period    = local.ec2.instance_warmup_period
     }
   }
 

@@ -90,16 +90,20 @@ module "ecs_cluster" {
     fargate_spot = { enabled = false }
 
     ec2 = {
-      enabled                 = true
-      instance_type           = "m5.large"
-      min_size                = 1
-      max_size                = 10
-      desired_capacity        = 2
-      vpc_zone_identifier     = module.vpc.private_subnet_ids
-      managed_scaling_enabled = true
-      managed_scaling_target  = 80
-      default_base            = 0
-      default_weight          = 1
+      enabled                        = true
+      instance_type                  = "m5.large"
+      min_size                       = 1
+      max_size                       = 10
+      desired_capacity               = 2
+      vpc_zone_identifier            = module.vpc.private_subnet_ids
+      managed_scaling_enabled        = true
+      managed_scaling_target         = 80
+      managed_draining_enabled       = true
+      instance_warmup_period         = 300
+      minimum_scaling_step_size      = 1
+      maximum_scaling_step_size      = 10
+      default_base                   = 0
+      default_weight                 = 1
     }
   }
 }
@@ -241,8 +245,12 @@ All resources require `enable_module = true` as the base condition.
 | `max_size` | `5` | `enabled=true` | ASG maximum instance count |
 | `desired_capacity` | `1` | `enabled=true` | ASG initial desired count (ignored by ECS managed scaling after first deploy) |
 | `vpc_zone_identifier` | `[]` | `enabled=true` | Private subnet IDs for ASG placement |
-| `managed_scaling_enabled` | `true` | `enabled=true` | ECS adjusts EC2 count based on task placement demand |
-| `managed_scaling_target` | `80` | `managed_scaling_enabled=true` | Target % EC2 capacity utilization before scaling out |
+| `managed_scaling_enabled` | `true` | `enabled=true` | ECS adjusts EC2 count based on task placement demand. Also gates `managed_termination_protection` and `protect_from_scale_in` |
+| `managed_scaling_target` | `80` | `managed_scaling_enabled=true` | Target % EC2 capacity utilization before scaling out. `80` = 20% headroom kept warm |
+| `managed_draining_enabled` | `true` | `enabled=true` | Drain running tasks from instances before termination |
+| `instance_warmup_period` | `300` | `managed_scaling_enabled=true` | Seconds before a new instance's capacity is counted by managed scaling. Prevents over-provisioning during boot |
+| `minimum_scaling_step_size` | `1` | `managed_scaling_enabled=true` | Minimum instances added/removed per scaling action |
+| `maximum_scaling_step_size` | `10` | `managed_scaling_enabled=true` | Maximum instances added/removed per scaling action |
 | `default_base` | `0` | `enabled=true` | Minimum tasks placed on EC2 provider by cluster default strategy |
 | `default_weight` | `0` | `enabled=true` | Relative share of new tasks in cluster default strategy |
 
@@ -386,6 +394,29 @@ FARGATE base=1 weight=1 + FARGATE_SPOT base=0 weight=3:
 ```
 
 The cluster `default_capacity_provider_strategy` is the fallback. Individual services set via `capacity_provider_strategy` in the service module override it.
+
+---
+
+## Safe EC2 Disable Sequence
+
+**Warning:** Setting `enabled = false` directly will fail if instances have scale-in protection. Use this two-step sequence.
+
+**Step 1** — disable managed scaling (removes all protections):
+```hcl
+ec2 = {
+  enabled                 = true    # keep enabled
+  managed_scaling_enabled = false   # disables managed_termination_protection + protect_from_scale_in
+  min_size                = 0
+  max_size                = 0
+}
+```
+Run `terraform apply`. ECS stops managing instances. ASG scales to zero.
+
+**Step 2** — destroy resources:
+```hcl
+ec2 = { enabled = false }
+```
+Run `terraform apply`. `force_delete = true` on the ASG ensures clean destruction.
 
 ---
 
