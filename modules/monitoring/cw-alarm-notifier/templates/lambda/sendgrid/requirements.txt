@@ -1,0 +1,25 @@
+# SendGrid API client for sending emails
+sendgrid==6.12.2
+python-dotenv==1.0.0
+
+# HTTP client library (dependency of sendgrid)
+python-http-client==3.3.7
+
+# ECDSA cryptographic library (dependency of sendgrid)
+starkbank-ecdsa==2.2.0
+
+# Boto3 for AWS Secrets Manager access (if used)
+boto3>=1.28.0
+
+# AWS SDK core dependency
+botocore>=1.31.0
+
+# Security and monitoring
+requests[security]>=2.28.0,<3.0.0
+urllib3>=1.26.0,<3.0.0
+
+# For better error tracking in production
+sentry-sdk>=1.32.0,<2.0.0
+
+# For configuration validation
+pyyaml>=6.0,<7.0

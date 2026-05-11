@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CloudWatch Alarm Notification</title>
+<style>
+    body {
+        font-family: 'Segoe UI', Tahoma, sans-serif;
+        margin: 0;
+        padding: 0;
+        background: #f4f6f9;
+        color: #333;
+    }
+    .container {
+        max-width: 700px;
+        margin: 20px auto;
+        background: #fff;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        overflow: hidden;
+    }
+    .header {
+        background: #d9534f;
+        color: #fff;
+        padding: 20px 25px;
+        text-align: center;
+    }
+    .header h1 {
+        margin: 0;
+        font-size: 22px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+    .icon {
+        font-size: 30px;
+    }
+    .badge {
+        background: #d9534f;
+        color: #fff;
+        padding: 5px 12px;
+        border-radius: 20px;
+        display: inline-block;
+        font-size: 12px;
+        font-weight: bold;
+        text-transform: uppercase;
+        margin: 10px 0;
+    }
+    .content {
+        padding: 20px 25px;
+        font-size: 14px;
+    }
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+    }
+    .table th, .table td {
+        padding: 10px;
+        text-align: left;
+        border-bottom: 1px solid #e0e0e0;
+        vertical-align: top;
+    }
+    .table th {
+        background: #f0f2f5;
+        text-transform: uppercase;
+        font-size: 12px;
+        font-weight: 600;
+        color: #555;
+        width: 40%;
+    }
+    .table td strong {
+        color: #000;
+    }
+    .reason {
+        margin-top: 15px;
+        background: #fff8e1;
+        border-left: 5px solid #fbc02d;
+        padding: 10px 15px;
+        font-style: italic;
+        border-radius: 4px;
+    }
+    .footer {
+        background: #f1f3f5;
+        text-align: center;
+        font-size: 12px;
+        color: #888;
+        padding: 15px;
+        border-top: 1px solid #dee2e6;
+    }
+    .footer a {
+        color: #007bff;
+        text-decoration: none;
+    }
+</style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1><span class="icon">⚠️</span> CloudWatch Alarm Triggered</h1>
+    </div>
+    <div class="content">
+        <div class="badge">‼️ High</div>
+        <table class="table">
+            <tr><th>State Change</th><td><strong>ALARM -> OK</strong></td></tr>
+            <tr><th>Alarm Name</th><td>High CPU Usage</td></tr>
+            <tr><th>Account & Region</th><td>123456789012 (us-west-2)</td></tr>
+            <tr><th>Resource</th><td>EC2 Instance i-000000000000</td></tr>
+            <tr><th>Date & Time</th><td>2025-06-18 14:45 UTC</td></tr>
+            <tr><th>Comparison</th><td>GreaterThanThreshold <strong>80%</strong></td></tr>
+            <tr><th>Metric</th><td>Namespace: <strong>AWS/EC2</strong><br>Name: <strong>CPUUtilization</strong></td></tr>
+        </table>
+        <div class="reason"><strong>Reason:</strong> Threshold Crossed: 1 datapoint [85.0 (18/06/25 14:40:00)] was greater than the threshold (80.0).</div>
+        <p><strong>Description:</strong> This alarm monitors CPU usage and triggers if it exceeds 80% for 5 minutes.</p>
+        <p style="margin-top: 20px; color: #555;">
+            📋 <strong>Next Steps:</strong> Please review the AWS CloudWatch console for metrics, logs, and corrective actions.
+        </p>
+    </div>
+    <div class="footer">
+        <p>© 2025 AWS CloudWatch Monitoring System</p>
+        <p>This is an automated notification. Please do not reply.</p>
+    </div>
+</div>
+</body>
+</html>
