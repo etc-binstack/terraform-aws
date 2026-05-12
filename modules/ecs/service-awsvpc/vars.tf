@@ -622,13 +622,13 @@ variable "configure_alerts" {
     teams_webhook_url  = optional(string)
     custom_webhook_url = optional(string)
 
-    # Alert toggles - by default enabled for high, disabled for low
+    # Alert toggles — all disabled by default
     enabled_alerts = optional(object({
       cpu_high    = optional(bool, false)
       cpu_low     = optional(bool, false)
       memory_high = optional(bool, false)
       memory_low  = optional(bool, false)
-    }))
+    }), {})
   })
   default = {
     # SNS Configuration with defaults
