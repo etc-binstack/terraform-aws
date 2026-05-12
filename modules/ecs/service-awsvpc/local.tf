@@ -122,8 +122,13 @@ locals {
 
 ## Notification/Alerts Configuration (configure_notification)
 locals {
-  alerts         = var.configure_alerts
-  enabled_alerts = local.alerts.enabled_alerts
+  alerts = var.configure_alerts
+  enabled_alerts = local.alerts.enabled_alerts != null ? local.alerts.enabled_alerts : {
+    cpu_high    = false
+    cpu_low     = false
+    memory_high = false
+    memory_low  = false
+  }
 }
 
 
