@@ -418,6 +418,40 @@ ec2 = { enabled = false }
 ```
 Run `terraform apply`. `force_delete = true` on the ASG ensures clean destruction.
 
+### If `terraform apply` hangs on capacity provider deletion
+
+AWS blocks capacity provider deletion while it is still registered to the cluster. Terraform may hang at:
+
+```
+aws_ecs_capacity_provider.ec2[0]: Still destroying... [10s elapsed]
+```
+
+**Unblock manually:**
+
+```bash
+# 1. Deregister EC2 capacity provider from cluster
+# Replace --capacity-providers and --default-capacity-provider-strategy
+# with whatever providers remain active on your cluster (e.g. FARGATE, FARGATE_SPOT)
+aws ecs put-cluster-capacity-providers \
+  --cluster <cluster-name> \
+  --capacity-providers FARGATE \
+  --default-capacity-provider-strategy capacityProvider=FARGATE,weight=1,base=1 \
+  --region <region>
+```
+
+Wait ~15s for AWS to process, then:
+
+```bash
+# 2. Delete the capacity provider
+aws ecs delete-capacity-provider \
+  --capacity-provider <cluster-name>-ec2-cp \
+  --region <region>
+```
+
+Then run `terraform apply` again. Remaining resources (ASG, launch template, IAM) will destroy cleanly.
+
+> **Note:** This is an AWS API eventual consistency constraint — `put-cluster-capacity-providers` returns success before fully deregistering the provider internally. There is no Terraform-native workaround.
+
 ---
 
 ## EC2 Instance Bootstrap (user_data)
