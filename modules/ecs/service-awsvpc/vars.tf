@@ -386,7 +386,7 @@ variable "configure_load_balancers" {
   validation {
     condition = alltrue([
       for lb in var.configure_load_balancers :
-      lb.listener_rule.priority == null || (lb.listener_rule.priority >= 1 && lb.listener_rule.priority <= 50000)
+      lb.listener_rule == null || try(lb.listener_rule.priority == null || (lb.listener_rule.priority >= 1 && lb.listener_rule.priority <= 50000), true)
     ])
     error_message = "listener_rule.priority must be between 1 and 50000 (AWS ALB limit), or null for random."
   }
@@ -597,12 +597,12 @@ variable "scaling_policies" {
 
   validation {
     condition = (
-      var.scaling_policies.cpu.scale_up.scale_by != 0 &&
-      var.scaling_policies.cpu.scale_down.scale_by != 0 &&
-      var.scaling_policies.memory.scale_up.scale_by != 0 &&
-      var.scaling_policies.memory.scale_down.scale_by != 0
+      (!var.scaling_policies.cpu.scale_up_enabled    || var.scaling_policies.cpu.scale_up.scale_by != 0) &&
+      (!var.scaling_policies.cpu.scale_down_enabled  || var.scaling_policies.cpu.scale_down.scale_by != 0) &&
+      (!var.scaling_policies.memory.scale_up_enabled   || var.scaling_policies.memory.scale_up.scale_by != 0) &&
+      (!var.scaling_policies.memory.scale_down_enabled || var.scaling_policies.memory.scale_down.scale_by != 0)
     )
-    error_message = "Scale-by values must not be zero."
+    error_message = "Scale-by values must not be zero when the corresponding scale action is enabled."
   }
 }
 
